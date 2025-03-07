@@ -1,0 +1,13 @@
+[Unit]
+Description=Cavli TCP example Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/tcp-app
+Restart=always
+RestartSec=3s
+
+[Install]
+WantedBy=multi-user.target
+
