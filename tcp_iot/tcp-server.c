@@ -1,4 +1,5 @@
 #include "tcp-app.h"
+#include "parse_json.h"
 
 #define SERVER_BUFFER_LEN 1024
 
@@ -12,6 +13,7 @@ void tcp_server(uint16_t port)
 
     socklen_t addr_size;
     char buffer[SERVER_BUFFER_LEN];
+    char response[SERVER_BUFFER_LEN];
 
     int ret;
 
@@ -40,6 +42,7 @@ void tcp_server(uint16_t port)
         exit(EXIT_FAILURE);
     }
     logd("Listening...");
+	addr_size = sizeof(newAddr);
 
     conn_sockfd = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
     if (-1 == conn_sockfd) {
@@ -48,7 +51,6 @@ void tcp_server(uint16_t port)
     }
     logd("Accepted New Connection");
 
-	addr_size = sizeof(newAddr);
 
     while (fgets(buffer, SERVER_BUFFER_LEN, stdin) != NULL) {
 		//logd("Entered into while and waiting for data...");
@@ -57,10 +59,25 @@ void tcp_server(uint16_t port)
             loge("Send Fail. (%s)", strerror(errno));
 			break;
         }
-        if (buffer[0] == TERMINATE_CHAR) {
+		if (buffer[0] == TERMINATE_CHAR) {
             break;
         }
-		fflush(stdin); //added to flush stdin.
+		//fflush(stdin); //added to flush stdin.
+
+		memset(response, 0, SERVER_BUFFER_LEN);
+		ret = recv(conn_sockfd, response, SERVER_BUFFER_LEN, 0);
+		if (-1 == ret) {
+			loge("Receive Fail. (%s)", strerror(errno));
+			break;
+		}
+		if (ret == 0) {
+			logd("Client disconnected..");
+			break;
+		}
+		response[ret] = '\0';
+		// Parse response and print the received response
+		logd("Received from Client: %s", response);
+		//parse_json_data(response, SERVER_BUFFER_LEN);
     }
     logd("Closing the connection.");
 }

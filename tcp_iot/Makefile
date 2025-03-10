@@ -1,14 +1,16 @@
 SRCS = \
 	main.c \
 	tcp-client.c \
-	tcp-server.c
+	response.c \
+	tcp-server.c \
+	parse_json.c	
 
 OBJS = $(SRCS:.c=.o)
 
 EXEC = tcp-app
 CFLAGS = -g -O0
 LDFLAGS =
-LIBS =
+LIBS = -lcjson
 
 $(EXEC): $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
