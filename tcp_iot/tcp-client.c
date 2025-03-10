@@ -1,4 +1,5 @@
 #include "tcp-app.h"
+#include "response.h"
 
 #define CLIENT_BUFFER_LEN 1024
 
@@ -45,6 +46,16 @@ void tcp_client(struct in_addr addr, uint16_t port)
 				break;
         }
 		printf("Received: %s", buffer); //print received data.
+		
+		// Process command and generate response
+		if(strncmp(buffer, "/imsi", 5) == 0) {
+			generate_response(buffer, response, CLIENT_BUFFER_LEN);
+			send(sockfd, response, strlen(response), 0);
+		} else if (strncmp(buffer, "/imei", 5) == 0) {
+			generate_response(buffer, response, CLIENT_BUFFER_LEN);
+			send(sockfd, response, strlen(response), 0);
+		}
+		//logd("Respone sent to server: %s", response);
 	}
     logd("Closing the connection.");
 }
